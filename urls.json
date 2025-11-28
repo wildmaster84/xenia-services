@@ -1,0 +1,6 @@
+{
+  "default": "example.com",
+  "test": "test.example.com",
+  "api": "api.example.com",
+  "blog": "blog.example.com"
+}
