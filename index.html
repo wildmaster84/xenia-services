@@ -1,49 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Xenia Services API</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 <script>
-async function fetchServices() {
-  const resp = await fetch('urls.json');
-  return await resp.json();
-}
-
-function getServiceFromURL() {
-  // ?services=test
-  const urlParams = new URLSearchParams(window.location.search);
-  let key = urlParams.get('services');
-  if (key) return key;
-
-  // /services/test
-  const pathMatch = window.location.pathname.match(/\/services\/([^\/]+)/);
-  if (pathMatch) return pathMatch[1];
-
-  return null;
-}
-
-async function main() {
-  const key = getServiceFromURL();
-  const services = await fetchServices();
-
+(async function() {
+  function getServiceKey() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let key = urlParams.get('services');
+    if (key) return key;
+    const pathMatch = window.location.pathname.match(/\/services\/([^\/]+)/);
+    if (pathMatch) return pathMatch[1];
+    return null;
+  }
+  const key = getServiceKey();
   if (!key) {
-    document.body.innerHTML = `<h2>Specify service as ?services=NAME or navigate to /services/NAME</h2>`;
+    document.write(JSON.stringify({ error: "No service specified" }));
     return;
   }
-
-  let result = {};
-  if (services[key]) {
-    result[key] = services[key];
-  } else {
-    result[key] = services["default"];
-  }
-
-  document.body.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
-}
-main();
+  const resp = await fetch('urls.json');
+  const services = await resp.json();
+  let value = services.hasOwnProperty(key) ? services[key] : services["default"];
+  let output = {};
+  output[key] = value;
+  document.open();
+  document.write(JSON.stringify(output));
+  document.close();
+})();
 </script>
 </body>
 </html>
